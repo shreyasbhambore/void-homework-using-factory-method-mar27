@@ -1,0 +1,70 @@
+#include <iostream>
+
+
+class InterfaceUnknown {
+public:
+    virtual void QueryInterface(void** ppv, int i) = 0;
+};
+
+
+class IMobile : public InterfaceUnknown {
+public:
+    virtual void MakeCall() = 0;
+};
+
+
+class ICalculator : public InterfaceUnknown {
+public:
+    virtual void Add() = 0;
+};
+
+
+class CMobile : public IMobile, public ICalculator {
+public:
+    void QueryInterface(void** ppv, int i) override {
+        if (i == 1) {
+            *ppv = static_cast<IMobile*>(this);
+        }
+        else if (i == 2) {
+            *ppv = static_cast<ICalculator*>(this);
+        }
+        else {
+            *ppv = nullptr;
+        }
+    }
+
+    void MakeCall() override {
+        std::cout << "MakeCall() called" << std::endl;
+    }
+
+    void Add() override {
+        std::cout << "Add() called" << std::endl;
+    }
+};
+
+CMobile* CreateMobile() {
+    return new CMobile();
+}
+
+
+int main() {
+ 
+    CMobile* mobile = CreateMobile();
+
+   
+    void* mobilePtr = NULL;
+    void* calculatorPtr = NULL;
+    mobile->QueryInterface(&mobilePtr, 1);
+    mobile->QueryInterface(&calculatorPtr, 2);
+
+    // Call MakeCall and Add functions using the pointers
+    IMobile* mobileInterface = static_cast<IMobile*>(mobilePtr);
+    ICalculator* calculatorInterface = static_cast<ICalculator*>(calculatorPtr);
+    mobileInterface->MakeCall();
+    calculatorInterface->Add();
+
+    // Delete the instance of CMobile
+    delete mobile;
+
+    return 0;
+}

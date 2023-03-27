@@ -1,0 +1,71 @@
+#include <iostream>
+
+
+class InterfaceUnknown {
+public:
+    virtual void QueryInterface(void** ppv, int i) = 0;
+};
+
+
+class IMobile : public InterfaceUnknown {
+public:
+    virtual void MakeCall() = 0;
+};
+
+// ICalculator class
+class ICalculator : public InterfaceUnknown {
+public:
+    virtual void Add() = 0;
+};
+
+
+class CMobile : public IMobile, public ICalculator {
+public:
+    void QueryInterface(void** ppv, int i) override {
+        if (i == 1) {
+            *ppv = (IMobile*)this;
+        }
+        else if (i == 2) {
+            *ppv = (ICalculator*)this;
+        }
+        else {
+            *ppv = nullptr;
+        }
+    }
+
+    void MakeCall() override {
+        std::cout << "MakeCall() called" << std::endl;
+    }
+
+    void Add() override {
+        std::cout << "Add() called" << std::endl;
+    }
+};
+
+
+CMobile* CreateMobile() {
+    return new CMobile();
+}
+
+
+int main() {
+    
+    CMobile* mobile = CreateMobile();
+
+   
+    void* mobilePtr = nullptr;
+    void* calculatorPtr = nullptr;
+    mobile->QueryInterface(&mobilePtr, 1);
+    mobile->QueryInterface(&calculatorPtr, 2);
+
+   
+    IMobile* mobileInterface = (IMobile*)mobilePtr;
+    ICalculator* calculatorInterface = (ICalculator*)calculatorPtr;
+    mobileInterface->MakeCall();
+    calculatorInterface->Add();
+
+   
+    delete mobile;
+
+    return 0;
+}
